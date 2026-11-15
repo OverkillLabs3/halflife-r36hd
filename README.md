@@ -2,6 +2,8 @@
 
 **Half-Life for the R36HD handheld (TreeFrogUI), running as a native libretro core.**
 
+![Half-Life running on the R36HD](screenshot.png)
+
 Built from Xash3D FWGS and hlsdk-portable with a software renderer tuned for the device's single MIPS 74K core and its small memory. The source code is in this repository and the build is on the [Releases](../../releases) page.
 
 ## How to play
