@@ -361,7 +361,7 @@ static qboolean LR_SndInUse( const sfx_t *sfx )
 static void LR_SndMakeRoom( const sfx_t *want )
 {
 	static size_t budget;
-	if( !budget ) budget = (size_t)1024 * 1024;
+	if( !budget ) budget = (size_t)6144 * 1024;
 	while( lr_snd_bytes > budget )
 	{
 		sfx_t *victim = NULL;
@@ -578,7 +578,11 @@ patch("ref/soft/r_studio.c", studio_cache)
 def surfcache3(t):
     return t.replace("size = Q_max( vid.width * vid.height * 2 * 8, 1280 * 1024 );",
                      "size = Q_min( Q_max( vid.width * vid.height * 2 * 8, 1280 * 1024 ), 1920 * 1024 );")
+# 22. with the 48 MB pool the caches may be larger: surface cache cap 4 MB (fewer rebuilt surfaces), sounds kept up to 6 MB
+def surfcache4(t):
+    return t.replace("1280 * 1024 ), 1920 * 1024 );", "3072 * 1024 ), 4096 * 1024 );")
 patch("ref/soft/r_surf.c", surfcache3)
+patch("ref/soft/r_surf.c", surfcache4)
 
 # 21. speed: texture coordinate wrap in float with floorf instead of double loops
 def texcoord2(t):

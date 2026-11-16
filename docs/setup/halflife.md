@@ -16,7 +16,7 @@ Check: the folder `Half-Life/valve` must contain a file named `skill.cfg`. If it
 
 ## 2. Put the port on the SD card
 
-1. Download `halflife-r36hd-1.0.0.zip` from the Releases page.
+1. Download `halflife-r36hd-1.1.0.zip` from the Releases page.
 2. Put the console's SD card in your PC.
 3. Unzip the file onto the **root** of the SD card. If asked, allow it to merge with the existing `roms` folder.
 
@@ -30,6 +30,7 @@ SD card
         └── halflife
             ├── halflife_libretro.so
             ├── run.sh
+            ├── tweaks/           (speed helpers, see the README)
             └── valve          <- your game files go in here
 ```
 
@@ -65,3 +66,9 @@ The port writes the reason to `cubegm/port_error.txt` on the SD card.
 
 If the game starts but the screen stays black, create an empty file named `direct_off.txt` in
 `roms/ports/halflife/` and start it again. This sends frames through picoarch the old way.
+
+If you update from an older version, unzip over the old files and allow the replace. The `tweaks` folder is new in 1.1.0.
+
+If the game does not start after the update, create an empty file named `tweaks_off` in `roms/ports/halflife/` and start it again: that skips every helper. If that fixes it, please report which console and firmware you have.
+
+If the game does not start but did before a power loss, move the folder `roms/ports/halflife/valve/save` out of the way. A damaged save stops the game from loading, and it starts a new one without the folder.

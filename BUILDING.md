@@ -33,3 +33,7 @@ libraries and newest glibc symbol (must be 2.20 or older).
 The engine, renderer, menu and both game libraries are linked into one shared object. Each library keeps its
 own symbol names (prefixed at link time), and the engine finds them through a built-in table instead of
 `dlopen`.
+
+## The speed helpers
+
+`tools/build_tweaks.sh` builds the three helpers in `tweaks/` (`libr36mem.so`, `tlbclear`, `sdfast`) with the same toolchain into `build/tweaks/`. Copy them into the port's `tweaks/` folder on the SD card next to `prepare.sh`. The core itself needs no helper: it includes `common/mmz_heap.c` and `common/bigtlb.c`.

@@ -25,7 +25,12 @@ Sound: 22050 Hz stereo, taken from the engine's ring buffer for the real time th
 #include <dlfcn.h>
 #include "libretro.h"
 #include "hl_libretro.h"
+#include "../../common/crashlog.c"
+#include "../../common/mmz_heap.c"   /* heap in the idle video pool, see common/mmz_heap.h */
 
+#ifndef LR_GAMEDIR
+#define LR_GAMEDIR "valve"      // game folder; other mods build the core with -DLR_GAMEDIR=\"name\"
+#endif
 #define AUDIO_RATE 22050
 #define CORE_FPS 60.0
 
@@ -134,9 +139,9 @@ bool retro_load_game_special( unsigned type, const struct retro_game_info *info,
 static void write_pad_config( void )
 {
 	char path[600];
-	snprintf( path, sizeof( path ), "%s/valve/userconfig.d", base_dir );
+	snprintf( path, sizeof( path ), "%s/" LR_GAMEDIR "/userconfig.d", base_dir );
 	mkdir( path, 0755 );
-	snprintf( path, sizeof( path ), "%s/valve/userconfig.d/r36hd.cfg", base_dir );
+	snprintf( path, sizeof( path ), "%s/" LR_GAMEDIR "/userconfig.d/r36hd.cfg", base_dir );
 	FILE *f = fopen( path, "w" );
 	if( !f ) return;
 	fputs( "// written by halflife_libretro.so at every start: R36HD pad and speed settings\n"
@@ -163,9 +168,9 @@ static void *game_main( void *arg )
 		if( !mode || !strcmp( mode, "continue" ))
 		{
 			char dir[600];
-			snprintf( dir, sizeof dir, "%s/valve/save", base_dir );
+			snprintf( dir, sizeof dir, "%s/" LR_GAMEDIR "/save", base_dir );
 			DIR *d = opendir( dir );
-			if( !d ) { snprintf( dir, sizeof dir, "%s/valve/SAVE", base_dir ); d = opendir( dir ); }
+			if( !d ) { snprintf( dir, sizeof dir, "%s/" LR_GAMEDIR "/SAVE", base_dir ); d = opendir( dir ); }
 			time_t best = 0;
 			if( d )
 			{
@@ -190,7 +195,7 @@ static void *game_main( void *arg )
 		if( mode && !strcmp( mode, "newgame" )) { argv[argc++] = "+map"; argv[argc++] = "c0a0"; }
 	}
 	argv[argc] = NULL;
-	Host_Main( argc, argv, "valve", 0, NULL );
+	Host_Main( argc, argv, LR_GAMEDIR, 0, NULL );
 	game_ended = 1;
 	sem_post( &sem_done );
 	return NULL;
@@ -221,6 +226,8 @@ bool retro_load_game( const struct retro_game_info *game )
 	mallopt( M_ARENA_MAX, 1 );
 	mallopt( M_MMAP_THRESHOLD, 128 * 1024 );
 	mallopt( M_TRIM_THRESHOLD, 128 * 1024 );
+	crashlog_install("halflife");
+	mmz_heap_install();
 	write_pad_config( );
 
 	sem_init( &sem_go, 0, 0 );

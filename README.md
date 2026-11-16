@@ -7,7 +7,7 @@
 Built from Xash3D FWGS and hlsdk-portable with a software renderer tuned for the device's single MIPS 74K core and its small memory. The source code is in this repository and the build is on the [Releases](../../releases) page.
 
 ## How to play
-1. Download `halflife-r36hd-1.0.0.zip` from the [Releases](../../releases) page and unzip it onto the root of the console's SD card.
+1. Download `halflife-r36hd-1.1.0.zip` from the [Releases](../../releases) page and unzip it onto the root of the console's SD card.
 2. Copy **your own** Half-Life `valve` folder into `roms/ports/halflife/valve/`. It must be the pre-25th Anniversary version (Steam beta `steam_legacy`).
 3. Start **Half-Life** from the **Ports** list.
 
@@ -21,6 +21,7 @@ Step-by-step guide, including where every file goes: [INSTALL.md](INSTALL.md).
 - Frames go straight to the display hardware, which scales them to the screen
 - An on-screen FPS counter that can be turned off
 - 35 to 58 frames per second in most rooms and about 25 in the busiest scenes, using about 18 MB of RAM
+- Uses the console's idle video memory as extra heap, large TLB pages, a faster memset and the SD card at 50 MHz (see Speed helpers)
 
 ## Controls
 | Button | In game | In menus |
@@ -53,6 +54,20 @@ In the picoarch menu, under core options:
 | FPS counter | on, off | on |
 
 `continue` loads your newest save, and starts a new game when there is none.
+
+## Speed helpers
+The folder `roms/ports/halflife/tweaks/` holds small helpers that `run.sh` starts before the game. Their source is in `tweaks/` and `common/` of this repository and `tools/build_tweaks.sh` builds them.
+
+| File | What it does |
+|---|---|
+| `prepare.sh` | clears stale TLB entries, sets the SD clock, a bigger read-ahead and a few memory settings, all lost at the next reboot |
+| `tlbclear` | removes wired TLB entries a crashed game may have left behind |
+| `sdfast` | SD card at 50 MHz instead of 20 MHz, with a 2 MB write and read-back check that goes back to 20 MHz on any difference |
+| `libr36mem.so` | faster memset and memcpy, loaded with `LD_PRELOAD` |
+
+The game itself uses the video memory pool as its heap and wires large TLB pages over it (`common/mmz_heap.c`, `common/bigtlb.c`). Switches are empty files in `roms/ports/halflife/`: `tweaks_off` skips every helper, `sdfast_off` leaves the SD clock alone, `bigtlb_off` turns the large pages off, `fastmem_off` keeps the stock memset. `/mnt/sdcard/cubegm/mmz_off` turns the memory pool off.
+
+Shut the console down from the menu and do not pull the card while a game runs: that is how an SD card's file system gets damaged. If Half-Life will not start afterwards, move `valve/save` out of the way.
 
 ## Known issues
 - The busiest scenes run at about 25 frames per second.
